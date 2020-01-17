@@ -90,4 +90,33 @@ server.delete("/api/users/:id", (req, res) => {
     );
 });
 
+// PUT REQUEST ("/api/users/:id")
+server.put("/api/users/:id", (req, res) => {
+  Data.findById(req.params.id).then((data) => {
+    if (!data) {
+      res
+        .status(404)
+        .json({ message: "The user with the specified ID does not exist." });
+    } else {
+      if (!req.body.name || !req.body.bio) {
+        res
+          .status(400)
+          .json({ errorMessage: "Please provide name and bio for the user." });
+      } else {
+        Data.update(req.params.id, req.body)
+          .then(() =>
+            Data.findById(req.params.id).then((data) =>
+              res.status(200).json(data)
+            )
+          )
+          .catch(() =>
+            res.status(500).json({
+              errorMessage: "The user information could not be modified."
+            })
+          );
+      }
+    }
+  });
+});
+
 server.listen(port, () => console.log(`\n *** API ON PORT: ${port} *** \n`));
